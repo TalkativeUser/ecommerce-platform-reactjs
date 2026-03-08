@@ -38,11 +38,12 @@ export async function getReviewsByProductId(productId) {
 export async function filterProducts({
     search = "",
     category = "",
-    minPrice = 0,
-    maxPrice = Infinity,
     sortBy = "title",
     sortOrder = "asc",
     page = 1,
+    // Three properties need ui to completed his features
+    maxPrice = Infinity,
+    minPrice = 0,
     limit = 8,
 } = {}) {
     await wait(500);
@@ -83,6 +84,7 @@ export async function filterProducts({
                 comparison = a.title.localeCompare(b.title);
                 break;
         }
+    
         return sortOrder === "desc" ? -comparison : comparison;
     });
 

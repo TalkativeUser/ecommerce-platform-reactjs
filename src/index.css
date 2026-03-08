@@ -30,3 +30,25 @@
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+
+/* index.css */
+@layer components {
+  .price-slider-input {
+    /* Base input styling */
+    @apply absolute w-full appearance-none bg-transparent pointer-events-none z-20 h-2 outline-none;
+    -webkit-appearance: none;
+  }
+
+  /* Styling the thumb for Chrome, Safari, Edge, and Opera */
+  .price-slider-input::-webkit-slider-thumb {
+    @apply w-[18px] h-[18px] bg-white border-[3px] border-[#23a9f7] rounded-full cursor-pointer pointer-events-auto relative z-30;
+    -webkit-appearance: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  /* Styling the thumb for Firefox */
+  .price-slider-input::-moz-range-thumb {
+    @apply w-[18px] h-[18px] bg-white border-[3px] border-[#23a9f7] rounded-full cursor-pointer pointer-events-auto relative z-30 border-none;
+  }
+}
