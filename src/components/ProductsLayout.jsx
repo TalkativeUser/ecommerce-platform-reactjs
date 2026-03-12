@@ -6,10 +6,10 @@ export default function ProductsLayout({ children }) {
  
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen ">
 
       {/* sidebar static show in md screen more than */}
-      <div className="shrink-0 hidden md:block ">
+      <div className="shrink-0 hidden md:block min-h-full  ">
           <FiltersDrawer />
         </div>
 
@@ -60,7 +60,7 @@ export default function ProductsLayout({ children }) {
             {/* sidebar daynamic or drawer show in sm screen more less */}
       { drawerMenu ? 
        <div className={`bg-black/55 fixed inset-0 z-10 parent md:hidden `} onClick={()=>{ setDrawerMenu( prev=>!prev ) }}  >
-        <div className="w-80 mt-16 h-full child "   onClick={(e) => e.stopPropagation()} >
+        <div className="w-80 mt-16 bg-red-500 h-full child " onClick={(e) => e.stopPropagation()} >
 
           <FiltersDrawer />
         </div>

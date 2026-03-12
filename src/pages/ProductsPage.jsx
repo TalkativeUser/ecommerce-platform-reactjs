@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
-// import { useContext } from "react";
 import {
-  getProducts,
   getCategories,
   filterProducts,
+  getProducts,
 } from "../features/products/services/productService";
 import ProductCard from "../features/products/components/ProductCard";
 import ProductsLayout from "../components/ProductsLayout";
-// import { ProductsContext } from "../context";
 import useProductsStore from "../store/useProductsStore";
+import { useFilterActions } from "../hooks/useFilterActions";
 
 //   very important
 // 1-  react don't create new useEffect before remove cleanUp functon in old useEffect
@@ -18,80 +17,47 @@ import useProductsStore from "../store/useProductsStore";
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const {filters,setFilters }=useProductsStore((state)=>state)
-  const {search, selectedCategory  ,sortBy ,sortOrder , maxPrice,minPrice, productsPerPage}=filters;
-  // const { search, selectedCategory  ,sortBy ,sortOrder , maxPrice,minPrice, productsPerPage, setCategories }=useContext(ProductsContext)
+  const { setCategories }=useProductsStore((state)=>state)
 
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [debouncedSearch, setDebouncedSearch] = useState("");
- 
+const [allRawProducts, setAllRawProducts] = useState([]);
+const { updateURL, currentPage , filterParams } = useFilterActions();
+// to filters only , based second useEffect
+useEffect(() => {
+
+  if (allRawProducts.length === 0) return;
+
+  const currentFilters = Object.fromEntries([...filterParams]);
+  
+  async function applyCurrentFilters() {
+    const { data, totalPages } = await filterProducts(currentFilters);
+    console.log('Filtration Applied ✅');
+    setProducts(data);
+    setTotalPages(totalPages);
+  }
+
+  applyCurrentFilters();
+}, [filterParams, allRawProducts]); 
 
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      // Currently just loads all products — students should use filterProducts()
-      const allProducts = await getProducts();
-      console.log("all products => ", allProducts);
-
-      setProducts(allProducts);
-      setTotalPages(Math.ceil(allProducts.length / productsPerPage));
-      const cats = await getCategories();
-      setFilters({ categories: cats })
-      // Simulate a short loading time so the spinner is visible
-      setTimeout(() => setLoading(false), 600);
-    }
-    load();
-  }, []);
-
-
-  // apply debouncce topic ✅
-  useEffect(() => {
-  const timer = setTimeout(() => {
-    console.log('setTimeOut start ✅');
+// initial Load only
+useEffect(() => {
+  async function loadInitialData() {
+    setLoading(true);
     
-    setDebouncedSearch(search);
-  }, 300);
-
-  return () => clearTimeout(timer);
-}, [search]);
-
-
-  useEffect(() => {
-    async function getFilteredProducts() {
-      const { data, totalPages } = await filterProducts({
-        search:debouncedSearch,
-        category: selectedCategory,
-        sortBy,
-        sortOrder,
-        page: currentPage,
-        maxPrice,
-        minPrice,
-        limit: productsPerPage,
-      });
-      setProducts(data);
-      setTotalPages(totalPages);
-    }
-
-
-  getFilteredProducts()
-
+    const [rawProducts, cats] = await Promise.all([
+      getProducts(), 
+      getCategories()
+    ]);
     
-  }, [
-    debouncedSearch,
-    selectedCategory,
-    sortBy,
-    sortOrder,
-    currentPage,
-    minPrice,
-    maxPrice,
-    productsPerPage,
-  ]);
-
-
-
-
+    setAllRawProducts(rawProducts); 
+    setCategories(cats);
+    
+    setTimeout(() => setLoading(false), 600);
+  }
+  
+  loadInitialData();
+}, []); 
 
   return (
     <ProductsLayout>
@@ -143,42 +109,39 @@ export default function ProductsPage() {
               </div>
             )}
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
-                  Previous
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (pageNum) => (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === pageNum
-                          ? "bg-primary-600 text-white"
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  ),
-                )}
-                <button
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
-                  Next
-                </button>
-              </div>
-            )}
+       {totalPages > 1 && (
+  <div className="flex items-center justify-center gap-2 mt-8">
+    <button
+      onClick={() => updateURL({pageNum:Math.max(1, currentPage - 1)})}
+      disabled={currentPage === 1}
+      className="px-4 py-2 border border-gray-200 rounded-lg text-sm disabled:opacity-40"
+    >
+      Previous
+    </button>
+
+    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+      <button
+        key={pageNum}
+        onClick={() => updateURL({pageNum})}
+        className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+          currentPage === pageNum
+            ? "bg-primary-600 text-white"
+            : "text-gray-600 hover:bg-gray-50 cursor-pointer "
+        }`}
+      >
+        {pageNum}
+      </button>
+    ))}
+
+    <button
+      onClick={() => updateURL({pageNum:Math.min(totalPages, currentPage + 1)})}
+      disabled={currentPage === totalPages}
+      className="px-4 py-2 border border-gray-200 rounded-lg text-sm disabled:opacity-40"
+    >
+      Next
+    </button>
+  </div>
+)}
           </>
         )}
       </div>

@@ -5,7 +5,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function getProducts() {
     await wait(500);
-    return Promise.resolve(products);
+    return Promise.resolve( products );
 }
 
 export async function getProductById(id) {
@@ -40,12 +40,14 @@ export async function filterProducts({
     category = "",
     sortBy = "title",
     sortOrder = "asc",
-    page = 1,
+    pageNum = 1,
     // Three properties need ui to completed his features
     maxPrice = Infinity,
     minPrice = 0,
-    limit = 8,
+    pageLimit=8,
 } = {}) {
+
+
     await wait(500);
     let filtered = [...products];
 
@@ -54,8 +56,7 @@ export async function filterProducts({
         const searchLower = search.toLowerCase();
         filtered = filtered.filter(
             (p) =>
-                p.title.toLowerCase().includes(searchLower) ||
-                p.description.toLowerCase().includes(searchLower)
+                p.title.toLowerCase().includes(searchLower) 
         );
     }
 
@@ -90,15 +91,15 @@ export async function filterProducts({
 
     // Calculate pagination AFTER filtering
     const total = filtered.length;
-    const totalPages = Math.ceil(total / limit);
-    const startIndex = (page - 1) * limit;
-    const data = filtered.slice(startIndex, startIndex + limit);
-
+    const totalPages = Math.ceil(total / pageLimit);
+    const startIndex = (pageNum - 1) * pageLimit;
+    const data = filtered.slice(startIndex, startIndex + pageLimit);
+    
     return Promise.resolve({
         data,
         total,
-        page,
+        pageNum,
         totalPages,
-        limit,
+        pageLimit,
     });
 }
