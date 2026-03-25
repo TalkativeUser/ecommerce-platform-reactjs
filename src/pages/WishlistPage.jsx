@@ -78,7 +78,7 @@ export default function WishlistPage() {
                                 <button
                                     onClick={() => {
                                         addToCart(item);
-                                        // Note: removeFromWishlist is not fully implemented
+                                        // Note: Now removeFromWishlist is fully implemented
                                         removeFromWishlist(item.id);
                                     }}
                                     className="flex-1 py-2 bg-primary-600 text-white text-xs font-medium rounded-lg hover:bg-primary-700 transition-colors"
