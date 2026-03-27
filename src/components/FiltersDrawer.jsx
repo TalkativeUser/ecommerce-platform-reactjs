@@ -1,9 +1,9 @@
 import PriceRangeSlider from "./Atoms/PriceRangeSlider";
-import useProductsStore from "../store/useProductsStore";
 import { useFilterActions } from "../hooks/useFilterActions";
+import { getCategories } from '../features/products/services/productService'
 import { useEffect, useState } from "react";
 export default function FiltersDrawer() {
-  const { categories } = useProductsStore((state) => state);
+  const [categories , setCategories] = useState([]);
   const { filterParams, updateURL } = useFilterActions();
   const [searchTerm, setSearchTerm] = useState(
     filterParams.get("search") || "",
@@ -24,6 +24,17 @@ export default function FiltersDrawer() {
       };
     }
   }, [searchTerm]);
+
+
+  useEffect(()=>{
+
+   const fetchCats= async ()=>{
+
+    const cats=await getCategories();
+    setCategories(cats)
+    }
+    fetchCats()
+  },[])
 
   return (
     <div className="bg-white rounded-r-2xl shadow-sm border border-gray-100 px-8 py-8 min-h-full ">

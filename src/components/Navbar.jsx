@@ -2,14 +2,17 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import useCartStore from "../features/cart/hooks/useCartStore";
 import useWishlistStore from "../features/wishlist/hooks/useWishlistStore";
+import useCompareStore from "../features/compare/hooks/useCompareStore";
 
 export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const cartItems = useCartStore((s) => s.items);
     const wishItems = useWishlistStore((s)=>s.items)
+    const compareItems = useCompareStore((s)=>s.items)
 
     const totalCartItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     const totalWishItems = wishItems.length;
+    const totalCompareItems = compareItems.length;
     
 
     const links = [
@@ -53,10 +56,26 @@ export default function Navbar() {
                             )}
                                 
                                 </>
-                                :"" }
+                                :link.label=="Compare"? 
+                                
+                                      <>
+                                
+                                   {totalCompareItems > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                                    {totalCompareItems}
+                                </span>
+                            )}
+                                
+                                </>
+                                
+                                
+                                :""  }
                             </Link>
                         ))}
                     </div>
+
+    
+
 
                     {/* Cart + Mobile Toggle */}
                     <div className="flex items-center gap-3">

@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import useWishlistStore from "../features/wishlist/hooks/useWishlistStore";
 import useCartStore from "../features/cart/hooks/useCartStore";
+import useCompareStore from "../features/compare/hooks/useCompareStore";
 
 export default function WishlistPage() {
     const items = useWishlistStore((s) => s.items);
-    const removeFromWishlist = useWishlistStore((s) => s.removeFromWishlist);
-    const addToCart = useCartStore((s) => s.addToCart);
+
+
 
     if (items.length === 0) {
         return (
@@ -49,10 +50,29 @@ export default function WishlistPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {items.map((item) => (
-                    <div
+                {items.map((item) => <WishProductCard key={item.id} item={item} />
+              )}
+            </div>
+        </div>
+    );
+}
+
+
+
+
+const WishProductCard=({item})=>{
+
+
+
+    const removeFromWishlist = useWishlistStore((s) => s.removeFromWishlist);
+    const addToCart = useCartStore((s) => s.addToCart);
+      const { toggleCompareItem } = useCompareStore((s) => s);
+
+       const isInCompare  = useCompareStore((s) => s.isInCompare(item.id));
+
+                  return (<div
                         key={item.id}
-                        className="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300"
+                        className="group bg-white relative rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300"
                     >
                         <Link
                             to={`/products/${item.id}`}
@@ -105,9 +125,35 @@ export default function WishlistPage() {
                                 </button>
                             </div>
                         </div>
+
+                    {/* compare button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            toggleCompareItem(item);
+          }}
+          className={`absolute top-3 left-3 p-2 rounded-full shadow-md transition-all duration-200 ${
+            isInCompare
+              ? "bg-blue-500 text-white"
+              : "bg-white/90 text-gray-400 hover:text-blue-500"
+          }`}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0 0 12 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 0 1-2.031.352 5.988 5.988 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971Zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 0 1-2.031.352 5.989 5.989 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971Z"
+            />
+          </svg>
+        </button>
+
                     </div>
-                ))}
-            </div>
-        </div>
-    );
+                )
 }

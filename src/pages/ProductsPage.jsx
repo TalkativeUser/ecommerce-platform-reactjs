@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import {
-  getCategories,
   filterProducts,
   getProducts,
 } from "../features/products/services/productService";
 import ProductCard from "../features/products/components/ProductCard";
 import ProductsLayout from "../components/ProductsLayout";
-import useProductsStore from "../store/useProductsStore";
 import { useFilterActions } from "../hooks/useFilterActions";
 
 //   very important
@@ -17,12 +15,25 @@ import { useFilterActions } from "../hooks/useFilterActions";
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setCategories }=useProductsStore((state)=>state)
-
   const [totalPages, setTotalPages] = useState(0);
 const [allRawProducts, setAllRawProducts] = useState([]);
 const { updateURL, currentPage , filterParams } = useFilterActions();
-// to filters only , based second useEffect
+
+
+// initial Load only
+useEffect(() => {
+  async function loadInitialData() {
+    setLoading(true);
+    
+    const rawProducts = await getProducts();
+    setAllRawProducts(rawProducts); 
+  
+  }
+  
+  loadInitialData();
+}, []); 
+
+// to filters only , based first useEffect
 useEffect(() => {
 
   if (allRawProducts.length === 0) return;
@@ -33,31 +44,14 @@ useEffect(() => {
     const { data, totalPages } = await filterProducts(currentFilters);
     console.log('Filtration Applied ✅');
     setProducts(data);
+        setLoading(false) 
+
     setTotalPages(totalPages);
   }
 
   applyCurrentFilters();
 }, [filterParams, allRawProducts]); 
 
-
-// initial Load only
-useEffect(() => {
-  async function loadInitialData() {
-    setLoading(true);
-    
-    const [rawProducts, cats] = await Promise.all([
-      getProducts(), 
-      getCategories()
-    ]);
-    
-    setAllRawProducts(rawProducts); 
-    setCategories(cats);
-    
-    setTimeout(() => setLoading(false), 600);
-  }
-  
-  loadInitialData();
-}, []); 
 
   return (
     <ProductsLayout>
@@ -90,7 +84,7 @@ useEffect(() => {
             </div>
 
             {/* Empty State , not found products */}
-            {products.length === 0 && (
+            { products.length === 0 && (
               <div className="text-center py-16">
                 <svg
                   className="w-16 h-16 text-gray-300 mx-auto mb-4"
