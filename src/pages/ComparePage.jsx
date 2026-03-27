@@ -5,43 +5,43 @@ export default function ComparePage() {
   const compareItems = useCompareStore((s) => s.items);
   const removeFromCompare = useCompareStore((s) => s.removeFromCompare);
 
-  function whichIsBetter() {
-    if (compareItems.length < 2) return;
+  function getComparisonResult(item1, item2, field) {
+    if (!item1 || !item2 || !field.compareType) return null;
 
-    const productA = compareItems[0];
-    const productB = compareItems[1];
-    return [
-      {
-        price: productA.price <= productB.price,
-        rating: productA.rating >= productB.rating,
-        stock: productA.stock >= productB.stock,
-      },
+    const val1 = item1[field.key]; // سعر المنتج الاول
+    const val2 = item2[field.key]; //  سعر المنتج الثانى
 
-      {
-        price: productB.price <= productA.price,
-        rating: productB.rating >= productA.rating,
-        stock: productB.stock >= productA.stock,
-      },
-    ];
+    if (val1 === val2) return "equal"; //  لو قد بعض يعنى 
+
+
+//                          هل المقارنه على الكمبه او الريت         
+//                                                                   انما دى للسعر فقط        المقارنه دى نتيجتها للكميه والمعدل  
+    const isFirstBetter = field.compareType === "higherIsBetter" ?           val1 > val2      :                      val1 < val2;
+
+    return isFirstBetter;
   }
-  const coparisonFlags = whichIsBetter();
-
-
 
   const comparisonFields = [
     {
       label: "Price",
       key: "price",
+      compareType: "lowerIsBetter",
       format: (v) => (
         <span className="font-bold text-green-700">${v?.toFixed(2)}</span>
       ),
     },
     { label: "Category", key: "category" },
-    { label: "Rating", key: "rating", format: (v) => `⭐ ${v}` },
+    {
+      label: "Rating",
+      key: "rating",
+      format: (v) => `⭐ ${v}`,
+      compareType: "higherIsBetter",
+    },
     {
       label: "Stock",
       key: "stock",
       format: (v) => (v > 0 ? `In Stock : ${v}` : `Out`),
+      compareType: "higherIsBetter",
     },
     { label: "Brand", key: "brand" },
   ];
@@ -148,33 +148,30 @@ export default function ComparePage() {
                       </div>
 
                       {/* Data Rows */}
-                      {comparisonFields.map((field) => (
-                        <div
-                          key={field.key}
-                          className={`h-14 flex items-center justify-center px-4 border-b border-gray-200 text-sm text-gray-700 
-                           ${
-                             (field.key == "price" ||
-                               field.key == "rating" ||
-                               field.key == "stock") &&
-                             compareItems.length == 2
-                               ? coparisonFlags[index][field.key]
-                                 ? "bg-green-100"
-                                 : "bg-red-100"
-                               : ""
-                           }
-                            
-                            `}
-                        >
-                          {field.format
-                            ? field.format(item[field.key])
-                            : item[field.key] || "—"}
-                        </div>
-                      ))}
+                      {comparisonFields.map((field) => {       //                                 biger       ==         smal
+                                                              //  pro A         pro B          [ {pric...} , {rat...} , {stok..} ]
+                        const isBetter = getComparisonResult(compareItems[0],compareItems[1],            field );
+
+                        // تحديد اللون بناءً على النتيجة (المنتج الحالي هو index)
+                        // لو النتيجة true والمنتج هو الأول، يبقى أخضر. لو النتيجة false والمنتج هو الأول، يبقى أحمر.
+                   const bgClass = isBetter === null || isBetter === "equal" ? ""  :    (index === 0 ? isBetter : !isBetter)  ? "bg-green-100": "bg-red-100";
+
+                        return (
+                          <div
+                            key={field.key}
+                            className={`h-14 ${bgClass} flex items-center justify-center px-4 border-b border-gray-200 text-sm text-gray-700 `}
+                          >
+                            {field.format
+                              ? field.format(item[field.key])
+                              : item[field.key]}
+                          </div>
+                        );
+                      })}
 
                       {/* Description Row */}
-                     <div className="p-4 text-xs text-gray-500 leading-normal line-clamp-2 overflow-hidden">
-  {item.description}
-</div>
+                      <div className="p-4 text-xs text-gray-500 leading-normal line-clamp-2 overflow-hidden">
+                        {item.description}
+                      </div>
                     </>
                   ) : (
                     <div className="h-full flex items-center justify-center bg-gray-50/20 text-gray-300 text-xs italic">
