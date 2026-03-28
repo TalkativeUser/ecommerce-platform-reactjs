@@ -121,7 +121,9 @@ export default function CartPage() {
                                             onClick={() =>
                                                 updateQuantity(item.id, item.quantity - 1)
                                             }
-                                            className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary-600 transition-colors"
+                                            className={`w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary-600 transition-colors
+                                                 ${item.quantity == 1 ?"cursor-not-allowed opacity-40 font-normal ":"cursor-pointer opacity-100 font-extrabold"}
+                                                `}
                                         >
                                             −
                                         </button>
@@ -130,9 +132,12 @@ export default function CartPage() {
                                         </span>
                                         <button
                                             onClick={() =>
-                                                updateQuantity(item.id, item.quantity + 1)
+                                                updateQuantity(item.id, item.quantity + 1  )
                                             }
-                                            className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary-600 transition-colors"
+                                            className={`w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary-600 transition-colors 
+                                                 ${ item.quantity == item.stock ? "cursor-not-allowed opacity-40 font-normal":"cursor-pointer opacity-100 font-extrabold" }
+
+                                                `}
                                         >
                                             +
                                         </button>
