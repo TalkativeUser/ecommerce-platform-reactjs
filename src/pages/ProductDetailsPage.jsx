@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getProductById } from "../features/products/services/productService";
+import { getProductById , getReviewsByProductId } from "../features/products/services/productService";
 import useCartStore from "../features/cart/hooks/useCartStore";
 import useWishlistStore from "../features/wishlist/hooks/useWishlistStore";
 import useCompareStore from "../features/compare/hooks/useCompareStore";
@@ -15,17 +15,39 @@ export default function ProductDetailsPage() {
   const isInWishlist = useWishlistStore((s) => s.isInWishlist(Number(id)));
   const { toggleCompareItem } = useCompareStore((s) => s);
     const isInCompare  = useCompareStore((s) => s.isInCompare(Number(id)));
+    const [reviews , setReviews]=useState([]);
 
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const p = await getProductById(id);
-      setProduct(p);
-      setLoading(false);
+useEffect(() => {
+  async function load() {
+    setLoading(true);
+
+    // I prefer use Promise.allsettled insted of Promise.All because promis.all it's reject all requests when fail any request but allSettled it's not 
+    const results = await Promise.allSettled([
+      getProductById(id), 
+      getReviewsByProductId(id)
+    ]);
+
+    // (Product)
+    if (results[0].status === "fulfilled") {
+      setProduct(results[0].value);
+    } else {
+      console.error("Product Load Failed:", results[0].reason);
     }
-    load();
-  }, [id]);
+
+    // (Reviews)
+    if (results[1].status === "fulfilled") {
+      setReviews(results[1].value);
+    } else {
+      setReviews([]); 
+      console.warn("Reviews Load Failed, but product is shown.");
+    }
+
+    setLoading(false);
+  }
+  load();
+}, [id]);
+    
 
   useEffect(() => {
     // Initialize countdown in seconds
@@ -275,16 +297,54 @@ export default function ProductDetailsPage() {
           </div>
 
           {/* Reviews Placeholder — Student task to implement */}
-          <div className="mt-10 border-t border-gray-100 pt-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Customer Reviews
-            </h3>
-            <div className="bg-gray-50 rounded-xl p-6 text-center">
-              <p className="text-gray-400 text-sm">
-                Reviews will be displayed here.
-              </p>
+        <div className="mt-10 border-t border-gray-100 pt-8">
+  <h3 className="text-xl font-bold text-gray-900 mb-6">
+    Customer Reviews ({reviews.length})
+  </h3>
+
+  {reviews.length > 0 ? (
+    <div className="space-y-6">
+      {reviews.map((review) => (
+        <div 
+          key={review.id} 
+          className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+             
+              <div className="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center font-bold text-sm">
+                {review.user.charAt(0)}
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900 text-sm">{review.user}</h4>
+                <p className="text-xs text-gray-400">{review.date}</p>
+              </div>
+            </div>
+            
+            {/* عرض النجوم بناءً على التقييم */}
+            <div className="flex text-yellow-400">
+              {[...Array(5)].map((_, i) => (
+                <span key={i} className={i < review.rating ? "fill-current" : "text-gray-200"}>
+                  ⭐
+                </span>
+              ))}
             </div>
           </div>
+
+          <p className="text-gray-600 text-sm leading-relaxed italic">
+            "{review.comment}"
+          </p>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="bg-gray-50 rounded-xl p-10 text-center border border-dashed border-gray-200">
+      <p className="text-gray-400 text-sm">
+        No reviews yet. Be the first to share your thoughts!
+      </p>
+    </div>
+  )}
+</div>
         </div>
       </div>
     </div>

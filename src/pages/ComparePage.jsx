@@ -148,7 +148,7 @@ export default function ComparePage() {
                       </div>
 
                       {/* Data Rows */}
-                      {comparisonFields.map((field) => {       //                                 biger       ==         smal
+                      {comparisonFields.map((field) => {       
                                                               //  pro A         pro B          [ {pric...} , {rat...} , {stok..} ]
                         const isBetter = getComparisonResult(compareItems[0],compareItems[1],            field );
 
