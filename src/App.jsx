@@ -7,13 +7,13 @@ import CartPage from "./pages/CartPage";
 import WishlistPage from "./pages/WishlistPage";
 import ComparePage from "./pages/ComparePage";
 import CheckoutPage from "./pages/CheckoutPage";
-import { ProductsProvider } from "./context";
+import { Toaster } from "react-hot-toast";
 
 //  I forgot and use Context insted of zustand 😂 but edit it again.
 
 export default function App() {
   return (
-    // <ProductsProvider>
+    <>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -27,6 +27,16 @@ export default function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-    // </ProductsProvider>
+      {/* used Toaster inside these files 
+          1-useCartStore.js 📁 Add to & Remove from wishList , toast.success('Added to Wishlist!') , toast.success('Removed from Wishlist!')
+          2-useWishlistStore.js 📁 Add to & Remove from Cart , toast.success('Added to Cart!') , toast.success('Removed from Cart!')
+          3-useCompareStore.js 📁  Add to & Remove from Compare , toast.success('Added to Comare!') , toast.success('Removed from Comare!')
+          4- 📁 Place order , toast.success('Successfull place order !')
+          
+      
+      
+      */}
+      <Toaster position="top-center" reverseOrder={false} />
+    </>
   );
 }

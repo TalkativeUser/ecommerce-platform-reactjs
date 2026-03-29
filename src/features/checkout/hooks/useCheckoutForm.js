@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { defValues_shippingFields } from "../data/shippingFields";
 import useCartStore from '../../cart/hooks/useCartStore'
+import toast from "react-hot-toast";
 
 export default function useCheckoutForm() {
   const items = useCartStore((s) => s.items);
@@ -25,8 +26,8 @@ export default function useCheckoutForm() {
   const onSubmit = (data) => {
     clearCart();
     setOrderPlaced(true);
-    console.log(data);
     methods.reset(); // نستخدم methods هنا
+    toast.success('successfull placed order')
   };
 
   return {

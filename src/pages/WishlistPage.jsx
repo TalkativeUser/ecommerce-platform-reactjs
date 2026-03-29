@@ -7,7 +7,6 @@ export default function WishlistPage() {
     const items = useWishlistStore((s) => s.items);
 
 
-
     if (items.length === 0) {
         return (
             <div className="max-w-7xl mx-auto px-4 py-16 text-center">

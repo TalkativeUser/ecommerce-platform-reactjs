@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 import useCartStore from "../features/cart/hooks/useCartStore";
 
+
 export default function CartPage() {
     const items = useCartStore((s) => s.items);
     const updateQuantity = useCartStore((s) => s.updateQuantity);
     const removeFromCart = useCartStore((s) => s.removeFromCart);
     const clearCart = useCartStore((s) => s.clearCart);
 
+    console.log('cart items => ' , items);
+    
     const totalPrice = items.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0

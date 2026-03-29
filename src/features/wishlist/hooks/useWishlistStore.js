@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -10,9 +11,11 @@ const useWishlistStore = create( persist( (set, get) => ({
     if (exists) {
      
       get().removeFromWishlist(product.id )
+     
 
     } else {
       set({ items: [...items, product] });
+        toast.success('Added item to wishlist page')
     }
   },
 
@@ -21,6 +24,7 @@ const useWishlistStore = create( persist( (set, get) => ({
         // TODO: Implement removal logic
         const newItems = get().items.filter((item) => item.id !== productId);
         set({ items: newItems });
+          toast.success('Removed item from wishlist page')
     },
 
   isInWishlist: (productId) => {

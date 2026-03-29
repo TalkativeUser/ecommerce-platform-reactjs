@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -17,18 +18,20 @@ if(exists) {
 
  get().removeFromCompare(newItem.id)
 
+
 } else {
  
     if(items.length==2 ) {
 
       set({ items: [...items.slice(1), newItem] });
+      
 
     } else {
 
       set({items:[...items,newItem]})
 
     }
-
+toast.success('Added item to compare page')
 
 }
 
@@ -41,6 +44,7 @@ if(exists) {
       
         const newItems = get().items.filter((item) => item.id !== productId);
         set({ items: newItems });
+         toast.success('Removed item from compare page')
     },
 
      isInCompare: (productId) => {

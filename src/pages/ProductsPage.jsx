@@ -42,7 +42,6 @@ useEffect(() => {
   
   async function applyCurrentFilters() {
     const { data, totalPages } = await filterProducts(currentFilters);
-    console.log('Filtration Applied ✅');
     setProducts(data);
         setLoading(false) 
 
